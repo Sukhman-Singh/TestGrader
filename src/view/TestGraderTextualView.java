@@ -21,7 +21,7 @@ public class TestGraderTextualView implements TestGraderView {
 
   /**
    * Constructs the controller for this test grader program.
-   *
+   * 
    * @param rd represents any input coming from the user.
    * @param ap represents any output sent to the user.
    */
