@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class TestGraderModel {
 
-  private List<String> key;
+  private List<KeyQuestion> key;
   private List<String> categories;
   private Integer totalCorrect;
   private List<CategoryAndScore> gradedCategories;
@@ -19,25 +19,24 @@ public class TestGraderModel {
    *
    * @param key        the answer key for this test grader. The format for the key will be
    *                   *Category*Question*
-   * @param categories the categories of the questions. The format of the categories will be one
-   *                   character that represents a category of questions
    */
-  public TestGraderModel(List<String> key, List<String> categories) {
-    // ensures that all categories in the key are provided in the category list
-    checkAllCategoriesExist(key, categories);
+  public TestGraderModel(List<KeyQuestion> key) {
 
     this.key = key;
-    this.categories = categories;
+    this.categories = createCategories(this.key);
   }
 
-  // checks that all the categories in the key exist in the categories provided.
-  private void checkAllCategoriesExist(List<String> key, List<String> categories) {
-    for (String string : key) {
-      if (!categories.contains(string.substring(0, 1))) {
-        throw new IllegalArgumentException(
-            "A category in the answer key is not included in the category list provided.");
+  // creates a list of categories using a key (list of keyquestions)
+  private List<String> createCategories(List<KeyQuestion> key) {
+    ArrayList<String> tempCategories = new ArrayList<String>();
+
+    for (KeyQuestion keyquest : key) {
+      if (!tempCategories.contains(keyquest.getCategory())) {
+        tempCategories.add(keyquest.getCategory());
       }
     }
+
+    return tempCategories;
   }
 
   /**
@@ -66,9 +65,9 @@ public class TestGraderModel {
     for (int i = 0; i < this.key.size(); i++) {
 
       // if the answer is correct
-      if (this.key.get(i).substring(1, 2).equalsIgnoreCase(answers.get(i))) {
+      if (this.key.get(i).getAnswer().equalsIgnoreCase(answers.get(i))) {
         tempGradeCategories
-            .get(getIndexOfCategory(this.key.get(i).substring(0, 1), tempGradeCategories))
+            .get(getIndexOfCategory(this.key.get(i).getCategory(), tempGradeCategories))
             .increaseCorrectAndTotal();
         correctAns++;
 
@@ -76,7 +75,7 @@ public class TestGraderModel {
       } else {
         // update the category that this question pertains to
         tempGradeCategories
-            .get(getIndexOfCategory(this.key.get(i).substring(0, 1), tempGradeCategories))
+            .get(getIndexOfCategory(this.key.get(i).getCategory(), tempGradeCategories))
             .increaseTotal();
         // add it to the list of incorrect numbers
         tempIncorrectNums.add(i + 1);
