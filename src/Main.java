@@ -1,8 +1,10 @@
 import controller.TestGraderController;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 import model.KeyQuestion;
 import model.TestGraderModel;
 import view.TestGraderTextualView;
@@ -13,18 +15,38 @@ public class Main {
 
   public static void main(String[] args) {
 
-    KeyQuestion keyquest1 = new KeyQuestion("A", "Math");
-    KeyQuestion keyquest2 = new KeyQuestion("A", "Math");
-    KeyQuestion keyquest3 = new KeyQuestion("A", "Writing");
-    KeyQuestion keyquest4 = new KeyQuestion("A", "Writing");
-    KeyQuestion keyquest5 = new KeyQuestion("A", "Reading");
-    KeyQuestion keyquest6 = new KeyQuestion("A", "Reading");
-    List<KeyQuestion> key = new ArrayList<KeyQuestion>(Arrays.asList(keyquest1, keyquest2, keyquest3, keyquest4, keyquest5, keyquest6));
+    String nameOfAnimeFile;
 
-    TestGraderModel model = new TestGraderModel(key);
-//    TestGraderView view = new TestGraderTextualView(new InputStreamReader(System.in),
-//        System.out);
-    TestGraderView view = new TestGraderVisualView();
+    // check that there is one user input for the name of the answer key file
+    try {
+      nameOfAnimeFile = args[0];
+    } catch (IndexOutOfBoundsException ioobe) {
+      throw new IllegalArgumentException("Please input the file name for the answer key.");
+    }
+
+    List<KeyQuestion> answerKey = new ArrayList<KeyQuestion>();
+
+    // try to parse the file
+    try {
+      File keyFile = new File(nameOfAnimeFile);
+      Scanner myReader = new Scanner(keyFile);
+      KeyQuestion tempKeyQuest;
+
+      while (myReader.hasNextLine()) {
+        String line = myReader.nextLine();
+        tempKeyQuest = new KeyQuestion(line.substring(0,1), line.substring(2));
+        answerKey.add(tempKeyQuest);
+      }
+      myReader.close();
+    } catch (FileNotFoundException e) {
+      System.out.println("Answer key was not found.");
+      e.printStackTrace();
+    }
+
+    TestGraderModel model = new TestGraderModel(answerKey);
+    TestGraderView view = new TestGraderTextualView(new InputStreamReader(System.in),
+        System.out);
+//    TestGraderView view = new TestGraderVisualView();
 
     TestGraderController control = new TestGraderController(model, view);
 
